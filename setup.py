@@ -8,7 +8,6 @@ if version < '2.2.3':
     DistributionMetadata.classifiers = None
     DistributionMetadata.download_url = None
 setup(name = 'm4baker',
-        version = '0.1.90',
         description = 'Bake full-featured m4b-audiobooks',
         author = 'Kilian Lackhove',
         author_email = '0crabman@gmail.com',
@@ -17,7 +16,7 @@ setup(name = 'm4baker',
               'Programming Language :: Python :: 2',
            ],
         packages = ['m4baker',],
-        package_dir = {'m4baker': 'm4baker',},
+        package_dir = {'m4baker': 'src',},
         scripts = ['scripts/m4baker'],
         data_files = [('/usr/share/applications', ['m4baker.desktop']),
                         ('/usr/share/pixmaps',  ['m4baker.png'])]
