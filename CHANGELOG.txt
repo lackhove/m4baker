@@ -1,0 +1,32 @@
+0.1.91 (0.2beta2)
+* fixed crash when output file name was altered 
+
+0.1.90 (0.2beta1)
+* changed: complete ui redesign
+* feature: move chapters between audiobooks
+* feature: smart(er) audiobook splitter
+* added: application icon
+* feature: verbose mode
+* fixed: delete temporary files
+* removed: CLI mode, for CLI mode use latest 0.1.*
+* changed: Qt is a hard dependency now
+* fixed: resize cover images to size the ipod can deal with
+* fixed: use mp4art instead of mp4tags for covers - better ipod compatibility
+  (thanks besnef from ubuntuforums.org)
+TODO: fix moving chapters down
+
+0.1.2
+* fixed: append new chapters on "add chapter" at the end of the book
+* fixed: keep sorting mode on chapter up, down, remove
+* resize cover image fo ipod friendly size (GUI only)
+* split audiobooks too large for ipods
+
+0.1.1
+* fixed non-ascii coverfilenames
+* fixed file dialogs in GNOME and pyqt 4.6
+* tested with less restrictive dependencies:
+    PyQt 4.7 with Qt 4.6 or newer -> PyQt 4.6 with Qt 4.5 or newer
+    faac 1.28 or newer -> faac 1.26 or newer
+
+0.1.0
+initial release

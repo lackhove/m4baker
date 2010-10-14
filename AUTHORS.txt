@@ -1,0 +1,10 @@
+Kilian Lackhove 0crabman@googlemail.com
+http://code.google.com/p/m4baker/
+
+The "which()" function in m4baker.py was taken from Stack Overflow
+http://stackoverflow.com/questions/377017
+answer by "Jay"  http://stackoverflow.com/users/20840/jay
+
+The m4baker icon is based on icons from:
+	"oxygen-icons" by www.oxygen-icons.org licensed under the LGPL 
+	"elementary-monochrome icons" by Daniel Foré licensed under the GPL

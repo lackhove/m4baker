@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=m4baker
+Comment=Bake full-featured m4b-audiobooks
+Exec=m4baker
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=AudioVideo;AudioVideoEditing;
+Icon=m4baker
