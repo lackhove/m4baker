@@ -239,7 +239,7 @@ class audiobook:
         chapfile.close()
         
         taggerProc = QProcess()
-        taggerProc.start('mp4chaps',  ['-z',  '-i',  self.outfileName])
+        taggerProc.start('mp4chaps',  ['-i',  self.outfileName])
         if taggerProc.waitForFinished():
             verboseOutput(str(taggerProc.readAllStandardOutput()), str(taggerProc.readAllStandardError()), 
                                                                                                         'MP4CHAPS')
