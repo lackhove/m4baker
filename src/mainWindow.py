@@ -154,7 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                               'audio files (%s)' % " ".join(formats))
               
         if fnames:
-            fnames = [unicode(element) for element in fnames]
+            #fnames = [unicode(element) for element in fnames]
             newbook = audiobook([chapter(element) for element in fnames])
             for element in newbook.chapters:
                 element.audiobook = newbook
@@ -226,7 +226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         
         if fnames:
-            fnames = [unicode(element) for element in fnames]
+            #fnames = [unicode(element) for element in fnames]
             chaplist = [chapter(element) for element in fnames]
             current = self.dataTreeView.currentIndex()
             self.model.addChapters(chaplist,  current)

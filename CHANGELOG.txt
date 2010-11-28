@@ -1,3 +1,7 @@
+0.1.92 (0.2beta3)
+* code cleanup
+* fix trailing spaces in faac command line
+
 0.1.91 (0.2beta2)
 * fixed crash when output file name was altered 
 

@@ -24,7 +24,7 @@ import os, re,  codecs
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-version = '0.1.91'
+version = QString('0.1.91')
 TITLE, CHAPTER, TRACK, DURATION, STARTTIME, FILENAME,  ENDTIME = range(7)
 VERBOSE = False
 
@@ -54,23 +54,23 @@ def verboseOutput(standardOutput, errorOutput,  name):
     standardOutput = standardOutput.strip()
     errorOutput = errorOutput.strip()
     if standardOutput:
-        print name + ': ' + standardOutput
+        print name.decode('utf-8') + ': ' + standardOutput.decode('utf-8')
     if errorOutput:
-        print 'ERROR: ' + name + ': ' + errorOutput
+        print 'ERROR: ' + name.decode('utf-8') + ': ' + errorOutput.decode('utf-8')
 
 
 class chapter:
     '''This class represents one chapter of an audiobook    '''
 
-    def __init__(self,  filename = None,  audiobook = None):
+    def __init__(self,  filename = QString(),  audiobook = QString()):
         '''init the chapter with standard minimum data'''
-
-        if filename != None:
+        
+        if not filename.isEmpty():
             self.setFile(filename)
             return
         self.audiobook = audiobook
         self.duration = 0
-        self.title = u'unknown chapter title'
+        self.title = QString('unknown chapter title')
         self.trackNumber = 0
         self.startTime = 0
 
@@ -83,10 +83,14 @@ class chapter:
         soxiProc = QProcess()
         soxiProc.start('soxi',  [self.filename,])
         if soxiProc.waitForFinished():
-            self.__soxioutput = str(soxiProc.readAllStandardOutput())
+            #TODO: __soxioutput is still a unicode string, port this to QString
+            self.__soxioutput = str(soxiProc.readAllStandardOutput()).decode('utf-8')
             soxiProc.deleteLater()
         
         #calculate duration in seconds
+        #rx = QRegExp('''(\d\d):(\d\d):(\d\d.\d\d)''')
+        #rx.indexIn(self.__soxioutput)
+        #(hours, minutes,  seconds) = (rx.cap(1).toFloat()[0],  rx.cap(2).toFloat()[0],  rx.cap(3).toFloat()[0])
         (hours, minutes,  seconds) = re.search('(\d\d):(\d\d):(\d\d.\d\d)', 
                                                 self.__soxioutput).groups()
         self.duration = float(seconds) + 60.0*float(minutes) + 60*60.0*float(hours)
@@ -95,14 +99,17 @@ class chapter:
         try:
             self.title =  re.search('Title=(.*?)\\n',  self.__soxioutput).groups()[0]
         except:
+            #FIXME: only mp3s
             self.title = re.match(r'(\/.*\/)?(.*?).mp3$', filename).groups()[1]
-        self.title = self.title.decode('utf-8')
+        self.title = QString(self.title)
+        #self.title = self.title.decode('utf-8')
 
         #get tracknumber from soxi, or from filename
         try:
             self.trackNumber =  int(re.search('Tracknumber=(.*?)\\n',  self.__soxioutput).groups()[0])
         except:
             try:
+                #FIXME: works onl for mp3s
                 filename = re.match(r'(\/.*\/)?(.*?).mp3$', filename).groups()[1]
                 self.trackNumber = int(re.search(r'\d+',  filename).group())
             except:
@@ -114,21 +121,21 @@ class chapter:
     def getBookdata(self):
         '''get books metadata from chapterfile'''
         try:
-            bookTitle = re.search('Album=(.*?)\\n',  self.__soxioutput).groups()[0].decode('utf-8')
+            bookTitle = re.search('Album=(.*?)\\n',  self.__soxioutput).groups()[0]
         except:
             bookTitle = self.title
             
         try:
-            author = re.search('Artist=(.*?)\\n',  self.__soxioutput).groups()[0].decode('utf-8')
+            author = re.search('Artist=(.*?)\\n',  self.__soxioutput).groups()[0]
         except:
-            author = u'Unknown Author'
+            author = 'Unknown Author'
             
         try:
-            year = re.search('Year=(.*?)\\n',  self.__soxioutput).groups()[0].decode('utf-8')
+            year = re.search('Year=(.*?)\\n',  self.__soxioutput).groups()[0]
         except:
-            year = u'0000'
+            year = '0000'
             
-        return (bookTitle,  author,  year)
+        return (QString(bookTitle),  QString(author),  QString(year))
         
 
 class audiobook:
@@ -142,8 +149,8 @@ class audiobook:
         (self.title,  self.author,  self.year) = chapters[0].getBookdata()
         
         #set preliminary value for outfileName and encodestring
-        self.outfileName = self.author + ' - ' + self.title + u'.m4b'
-        self.encodeString =u'faac -o <output_file>' 
+        self.outfileName = self.author + ' - ' + self.title + QString('.m4b')
+        self.encodeString =QString('faac -o <output_file>' )
         
         self.progress = 0
         
@@ -193,6 +200,7 @@ class audiobook:
         soxcommand += [u'-t',  u'.wav',  u'-o',  u'-']
         
         faaccommand = QString(self.encodeString)
+        faaccommand = faaccommand.trimmed()
         #faaccommand needs to be a QString for the regex below
         faaccommand = faaccommand.split(' ')
         #we do this after splitting the string to avoid splitting the filename
@@ -217,9 +225,11 @@ class audiobook:
         '''create a chapterfile for mp4chaps and make it write the chapters to the outfileName , remove chapterfile'''
         
         #TODO: change all strings to QString
-        trimmedOutfileName = re.sub('\..*$',  '',  self.outfileName)
-        chapfileName = trimmedOutfileName + '.chapters.txt'
-        chapfileName.replace('\..*$',  '')
+        trimmedOutfileName  = QString(self.outfileName)
+        rx = QRegExp(r'''\..+$''')
+        rx.setMinimal(True)
+        trimmedOutfileName .replace(rx,  '')
+        chapfileName = trimmedOutfileName + QString('.chapters.txt')
         #we need codecs.open because this file can contain non ascii characters
         chapfile = codecs.open(unicode(chapfileName),  encoding='utf-8',  mode='w')
         for element in self.chapters:
@@ -368,8 +378,7 @@ class audiobookTreeModel(QAbstractItemModel):
                     startTime = u'%.2d:%.2d:%#06.3f' % secConverter(chapter.startTime)
                     return QVariant(startTime)
                 if column == FILENAME:
-                    filename = unicode(chapter.filename) 
-                    #convert to unicode for the case that filename == None
+                    filename = chapter.filename
                     return QVariant(filename)
                 if column == ENDTIME:
                     endTime = u'%.2d:%.2d:%#06.3f' % secConverter(chapter.duration + chapter.startTime)
@@ -381,7 +390,7 @@ class audiobookTreeModel(QAbstractItemModel):
                 if column == TITLE:
                     return QVariant(audiobook.title)
                 if column == FILENAME:
-                    filename = unicode(audiobook.outfileName)
+                    filename = audiobook.outfileName
                     return QVariant(filename)
                 if column == CHAPTER:
                     return QVariant(audiobook.progress)
@@ -460,7 +469,7 @@ class audiobookTreeModel(QAbstractItemModel):
                 if column == TITLE:
                     audiobook.title = value.toString()
                 if column == FILENAME:
-                    audiobook.outfileName = unicode(value.toString())
+                    audiobook.outfileName = value.toString()
                 if column == CHAPTER:
                     audiobook.progress,  ok = value.toInt()
         
