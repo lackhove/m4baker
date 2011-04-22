@@ -94,24 +94,22 @@ class chapter:
         (hours, minutes,  seconds) = re.search('(\d\d):(\d\d):(\d\d.\d\d)', 
                                                 self.__soxioutput).groups()
         self.duration = float(seconds) + 60.0*float(minutes) + 60*60.0*float(hours)
-        
+    
         #get title from soxi, if none found use filename without extension
         try:
             self.title =  re.search('Title=(.*?)\\n',  self.__soxioutput).groups()[0]
         except:
-            #FIXME: only mp3s
-            self.title = re.match(r'(\/.*\/)?(.*?).mp3$', filename).groups()[1]
+            self.title = filename.section(os.sep,-1,-1).section('.',0,0)
         self.title = QString(self.title)
-        #self.title = self.title.decode('utf-8')
 
         #get tracknumber from soxi, or from filename
         try:
             self.trackNumber =  int(re.search('Tracknumber=(.*?)\\n',  self.__soxioutput).groups()[0])
         except:
             try:
-                #FIXME: works onl for mp3s
-                filename = re.match(r'(\/.*\/)?(.*?).mp3$', filename).groups()[1]
-                self.trackNumber = int(re.search(r'\d+',  filename).group())
+                basename = filename.section(os.sep,-1,-1).section('.',0,0)
+                #FIXME: re.search expects basenamne to be a unicode string
+                self.trackNumber = int(re.search(r'\d+',  basename).group())
             except:
                 self.trackNumber = 0            
 
