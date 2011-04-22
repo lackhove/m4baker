@@ -222,11 +222,8 @@ class audiobook:
     def tagChapters(self):
         '''create a chapterfile for mp4chaps and make it write the chapters to the outfileName , remove chapterfile'''
         
-        #TODO: change all strings to QString
-        trimmedOutfileName  = QString(self.outfileName)
-        rx = QRegExp(r'''\..+$''')
-        rx.setMinimal(True)
-        trimmedOutfileName .replace(rx,  '')
+        #trim the file extension
+        trimmedOutfileName = self.outfileName.section('.',0,-2)
         chapfileName = trimmedOutfileName + QString('.chapters.txt')
         #we need codecs.open because this file can contain non ascii characters
         chapfile = codecs.open(unicode(chapfileName),  encoding='utf-8',  mode='w')
