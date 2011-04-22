@@ -159,7 +159,14 @@ class audiobook:
     
     def __init__(self,  chapters,  sortBy = 'filename'):
         '''init audiobook from given chapters, sort them and calculate chapters start times'''
-        self.chapters = chapters
+#        for element in chapters:
+#            element.audiobook = self
+#        self.chapters = chapters
+        
+        self.chapters = []
+        for element in chapters:
+            self.addChap(element)
+        
         self.sort(sortBy)
         
         #get book metadata from first chapter file

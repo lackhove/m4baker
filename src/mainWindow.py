@@ -159,8 +159,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #fnames = [unicode(element) for element in fnames]
             self.currentDir =  fnames[-1].section(os.sep,0,-2)
             newbook = audiobook([chapter(element) for element in fnames])
-            for element in newbook.chapters:
-                element.audiobook = newbook
             self.model.addAudiobooks(newbook)
             self.updateTree()
 
