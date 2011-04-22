@@ -82,6 +82,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.audiobookList = audiobookContainer()
         
+        self.currentDir = os.getcwd()
+        
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -150,11 +152,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         formats = ["*%s" % format for format in supportedInputFiles]
         
-        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to create audiobook from", 'audio files',
+        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to create audiobook from", self.currentDir, 'audio files',
                                               'audio files (%s)' % " ".join(formats))
               
         if fnames:
             #fnames = [unicode(element) for element in fnames]
+            self.currentDir =  fnames[-1].section(os.sep,0,-2)
             newbook = audiobook([chapter(element) for element in fnames])
             for element in newbook.chapters:
                 element.audiobook = newbook
@@ -221,11 +224,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         formats = ["*%s" % format for format in supportedInputFiles]
-        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to append to audiobook",
+        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to append to audiobook", self.currentDir,  
                 'audio files',  'audio files (%s)' % " ".join(formats))
         
         
         if fnames:
+            self.currentDir =  fnames[-1].section(os.sep,0,-2)
             #fnames = [unicode(element) for element in fnames]
             chaplist = [chapter(element) for element in fnames]
             current = self.dataTreeView.currentIndex()
@@ -416,11 +420,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         
         formats = ["*%s" % format for format in supportedInputFiles]
-        fname = QFileDialog.getOpenFileName(self, "Choose audio files to append to audiobook",
-                '',  'audio files (%s)' % " ".join(formats))
+        fname = QFileDialog.getOpenFileName(self, "Choose audio files to append to audiobook", self.currentDir, 
+                                            '',  'audio files (%s)' % " ".join(formats))
                 
         
         if  not fname.isEmpty():
+            self.currentDir =  fname.section(os.sep,0,-2)
             self.model.setData(self.model.index(current.row(), FILENAME,  current.parent()), QVariant(fname))
             self.populateChapterProperties()
 
@@ -432,9 +437,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         current = self.dataTreeView.currentIndex()
         
-        fname = QFileDialog.getSaveFileName(self, 'choose audiobook output file', 
+        fname = QFileDialog.getSaveFileName(self, 'choose audiobook output file', self.currentDir, 
                                              self.outfileEdit.text(), "Audiobook files (*.m4b)")
         if not fname.isEmpty():
+            self.currentDir =  fname.section(os.sep,0,-2)
             if not fname.endsWith('.m4b'):
                 fname += ".m4b"
             self.model.setData(self.model.index(current.row(), FILENAME,  current.parent()), QVariant(fname))
@@ -478,11 +484,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         current = self.dataTreeView.currentIndex()
         
-        fname = QFileDialog.getOpenFileName(self, "Choose a cover file",  "cover.png", 
+        fname = QFileDialog.getOpenFileName(self, "Choose a cover file",  "cover.png", self.currentDir, 
                 "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)" )
         
     
         if  not fname.isEmpty():
+            self.currentDir =  fname.section(os.sep,0,-2)
             self.model.setData(self.model.index(current.row(),  0,  current.parent()), 
                                                                                     {'cover':QPixmap(fname)},  Qt.UserRole)
             self.populateAudiobookProperties()
