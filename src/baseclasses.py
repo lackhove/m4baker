@@ -646,17 +646,19 @@ class audiobookTreeModel(QAbstractItemModel):
             booknum = index.parent().row()
             chapnum = index.row()
             if sortedChapnums.get(booknum) == None:
+                # the audiobook hast been added yet
                 sortedChapnums[booknum] = [chapnum,  ]
             else:
                 sortedChapnums[booknum].append(chapnum)
         
-        self.beginResetModel()
         if direction == 'up':
             #move chapters up
             for booknum in sortedChapnums.iterkeys():
                 if 0 in sortedChapnums[booknum]:
+                    # the first chapter will be moved up
                     tempchap = self.audiobookList[booknum].chapters.pop(0)
                     self.audiobookList[booknum -1].addChap(tempchap)
+                    self.emit(SIGNAL('expand(QModelIndex)'), self.index(booknum -1,  0, indexes[0].parent().parent()) )
                 else:
                     for chapnum in sortedChapnums[booknum]:
                         self.audiobookList[booknum].chapters[chapnum - 1: chapnum - 1] = \
@@ -667,15 +669,18 @@ class audiobookTreeModel(QAbstractItemModel):
             for booknum in sortedChapnums.iterkeys():
                 lastchap = (len(self.audiobookList[booknum].chapters)-1)
                 if lastchap in sortedChapnums[booknum]:
+                    # the last chapter will be moved down
                     tempchap = self.audiobookList[booknum].chapters.pop(lastchap)
                     self.audiobookList[booknum +1].addChap(tempchap,  0)
+                    self.emit(SIGNAL('expand(QModelIndex)'), self.index(booknum +1,  0, indexes[0].parent().parent()) )
                 else:
                     #the list has to be reversed because it changes everytime pop is used
                     sortedChapnums[booknum].reverse()
                     for chapnum in sortedChapnums[booknum]:
                         self.audiobookList[booknum].chapters[chapnum + 1: chapnum + 1] = \
                                     [self.audiobookList[booknum].chapters.pop(chapnum), ]
-        self.endResetModel()
+        
+        self.emit(SIGNAL('layoutChanged()'))
     
     
     def sort(self, parent,  sortBy = 'filename'):

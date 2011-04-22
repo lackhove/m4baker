@@ -190,7 +190,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         firstIndex = self.model.index(indexes[0].row()+1,  indexes[0].column(),  indexes[0].parent())
         lastIndex = self.model.index(indexes[-1].row()+1,  indexes[-1].column(),  indexes[-1].parent())
         #check if the last indexes parent has changed, if true a chapter has been moved to another audiobook
-        #FIXME: this sucks
+        #FIXME: this is still broken
         if lastIndex.parent() != firstIndex.parent():
             #in this case select the last chapter of the source audiobook
             lastIndex = self.model.index((self.model.rowCount(firstIndex.parent())-1),  
