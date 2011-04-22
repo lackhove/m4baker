@@ -80,60 +80,79 @@ class chapter:
         self.filename = filename
         
         #get fileinfo using soxi
+        #FIXME: soxi seems to have problems with files conatining more than one dot
         soxiProc = QProcess()
         soxiProc.start('soxi',  [self.filename,])
         if soxiProc.waitForFinished():
-            #TODO: __soxioutput is still a unicode string, port this to QString
-            self.__soxioutput = str(soxiProc.readAllStandardOutput()).decode('utf-8')
+            self.__soxioutput = QString(soxiProc.readAllStandardOutput())
             soxiProc.deleteLater()
         
         #calculate duration in seconds
-        #rx = QRegExp('''(\d\d):(\d\d):(\d\d.\d\d)''')
-        #rx.indexIn(self.__soxioutput)
-        #(hours, minutes,  seconds) = (rx.cap(1).toFloat()[0],  rx.cap(2).toFloat()[0],  rx.cap(3).toFloat()[0])
-        (hours, minutes,  seconds) = re.search('(\d\d):(\d\d):(\d\d.\d\d)', 
-                                                self.__soxioutput).groups()
+        regexp = QRegExp(r'''(\d\d):(\d\d):(\d\d.\d\d)''')
+        regexp.indexIn(self.__soxioutput)
+        (hours, minutes,  seconds) = (regexp.cap(1).toFloat()[0],  regexp.cap(2).toFloat()[0],  regexp.cap(3).toFloat()[0])
         self.duration = float(seconds) + 60.0*float(minutes) + 60*60.0*float(hours)
     
-        #get title from soxi, if none found use filename without extension
-        try:
-            self.title =  re.search('Title=(.*?)\\n',  self.__soxioutput).groups()[0]
-        except:
-            self.title = filename.section(os.sep,-1,-1).section('.',0,0)
-        self.title = QString(self.title)
+        #get title from soxi
+        regexp = QRegExp(r"""Title=(.*)\n""")
+        regexp.setMinimal(1)
+        pos = regexp.indexIn(self.__soxioutput)
+        if pos >= 0:
+            self.title = regexp.cap(1)
+        else:
+        #if self.title.size() == 0:
+            # guess the title if it wasn t found in metadata
+            self.title = filename.section(os.sep,-1,-1).section('.',0,-2)
 
-        #get tracknumber from soxi, or from filename
-        try:
-            self.trackNumber =  int(re.search('Tracknumber=(.*?)\\n',  self.__soxioutput).groups()[0])
-        except:
-            try:
-                basename = filename.section(os.sep,-1,-1).section('.',0,0)
-                #FIXME: re.search expects basenamne to be a unicode string
-                self.trackNumber = int(re.search(r'\d+',  basename).group())
-            except:
-                self.trackNumber = 0            
+        #get tracknumber from soxi
+        regexp = QRegExp(r"""Tracknumber=(.*)\n""")
+        regexp.setMinimal(1)
+        pos = regexp.indexIn(self.__soxioutput)
+        if pos >= 0:
+            (self.trackNumber,  OK) = regexp.cap(1).toInt()
+        else:
+        #if not OK:
+            # get tracknumber from filename
+            basename = filename.section(os.sep,-1,-1).section('.',0,0)
+            regexp = QRegExp(r"""(\d+)""")
+            pos = regexp.indexIn(basename)
+            if pos >= 0:
+                (self.trackNumber,  OK) = regexp.cap(1).toInt()
+            else:
+            #if not OK:
+                self.trackNumber = 0
 
         #set peliminary value for the startTime
         self.startTime = self.duration
 
+
     def getBookdata(self):
         '''get books metadata from chapterfile'''
-        try:
-            bookTitle = re.search('Album=(.*?)\\n',  self.__soxioutput).groups()[0]
-        except:
+        regexp = QRegExp(r"""Album=(.*)\n""")
+        regexp.setMinimal(1)
+        pos = regexp.indexIn(self.__soxioutput)
+        if pos >= 0:
+            bookTitle = regexp.cap(1)
+        else:
             bookTitle = self.title
-            
-        try:
-            author = re.search('Artist=(.*?)\\n',  self.__soxioutput).groups()[0]
-        except:
-            author = 'Unknown Author'
-            
-        try:
-            year = re.search('Year=(.*?)\\n',  self.__soxioutput).groups()[0]
-        except:
-            year = '0000'
-            
-        return (QString(bookTitle),  QString(author),  QString(year))
+
+        regexp = QRegExp(r"""Artist=(.*)\n""")
+        regexp.setMinimal(1)
+        pos = regexp.indexIn(self.__soxioutput)
+        if pos >= 0:
+            author = regexp.cap(1)
+        else:
+            author  = 'Unknown Author'
+
+        regexp = QRegExp(r"""Year=(.*)\n""")
+        regexp.setMinimal(1)
+        pos = regexp.indexIn(self.__soxioutput)
+        if pos >= 0:
+            year = regexp.cap(1)
+        else:
+            year  = '0000'
+
+        return (bookTitle,  author,   year)
         
 
 class audiobook:
