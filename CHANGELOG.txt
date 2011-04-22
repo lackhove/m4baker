@@ -1,6 +1,9 @@
 0.1.92 (0.2beta3)
-* code cleanup
-* fix trailing spaces in faac command line
+* fixed:  trailing spaces in faac command line
+* fixed:  guessing of metadata for non-mp3 files
+* fixed:  tagging of ouput file names that contain dots
+* fixed: remember last directory for file dialogues
+* fixed: treeviews expansion behavior
 
 0.1.91 (0.2beta2)
 * fixed crash when output file name was altered 
