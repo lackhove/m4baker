@@ -557,30 +557,41 @@ class audiobookTreeModel(QAbstractItemModel):
             return self.createIndex(booknum,  0,  self.audiobookList[booknum])
 
 
-    def addAudiobooks(self,  newbook):
+    def addAudiobooks(self,  newbook,  current):
+        
+        # set parent to its parent until it points to root
+        parent = current.parent()
+        while parent.isValid():
+            parent = parent.parent()
+
+        booknum = self.rowCount(parent)
+        
+        self.beginInsertRows(parent,  booknum,   booknum)
         self.audiobookList.append(newbook)
-        booknum = len(self.audiobookList) -1
-        self.reset()
+        self.endInsertRows()
+        
+        self.emit(SIGNAL('expand(QModelIndex)'),  self.index(booknum ,  0,  parent))
+
         return True
 
 
     def addChapters(self,  chaplist,  current):
-        if not current.isValid():
-            return False
         
-        if not current.parent().isValid():
-            #current points to a audiobook
-            booknum = self.audiobookList.index(current.internalPointer())
-        else:
-            #current points to a chapter
-            booknum = self.audiobookList.index(current.internalPointer().audiobook)
+        if current.parent().isValid():
+            # current is a audiobook
+            current = current.parent()
         
+        booknum = current.row()
+        chapnum = self.rowCount(current.parent())
+        
+        self.beginInsertRows(current.parent(),  chapnum,   chapnum + len(chaplist))
         for element in chaplist:
-            self.audiobookList[booknum].addChap(element)
- 
-        self.reset()
+            self.audiobookList[booknum ].addChap(element)
+        self.endInsertRows()
+        
+        self.emit(SIGNAL('expand(QModelIndex)'),  current)
+
         return True
-    
     
     def remove(self,  indexes):
         
@@ -616,9 +627,6 @@ class audiobookTreeModel(QAbstractItemModel):
             self.beginRemoveRows(parent,  first,  last)
             self.audiobookList[parent.row()].remChaps(range(first,  last+1))
             self.endRemoveRows()
-            self.reset() 
-            #FIXME: workaround to prevent segfault, no idea why this happens
-
 
     def move(self,  indexes,  direction):
         '''this method moves only the given chapters up and doesnt touch 
@@ -680,10 +688,9 @@ class audiobookTreeModel(QAbstractItemModel):
             #parent ia a chapter
             parent = parent.parent()
         
-        self.beginResetModel()
         booknum = parent.row()
         self.audiobookList[booknum].sort(sortBy)
-        self.endResetModel()
+        self.emit(SIGNAL('layoutChanged()'))
         return True
     
     

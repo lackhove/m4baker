@@ -100,6 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                      SIGNAL('currentChanged(QModelIndex, QModelIndex)'),
                             self.on_dataTreeView_currentItemChanged)
         self.connect(self.model,  SIGNAL('dataChanged(QModelIndex,QModelIndex)'),  self.dataChanged)
+        self.connect(self.model,  SIGNAL('expand(QModelIndex)'),  self.dataTreeView.expand)
         #trying the new style of connecting signals
         self.model.processingDone.connect(self.on_processingDone)
         
@@ -150,6 +151,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         Slot documentation goes here.
         """
+        current = self.dataTreeView.currentIndex()
+        
         formats = ["*%s" % format for format in supportedInputFiles]
         
         fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to create audiobook from", self.currentDir, 'audio files',
@@ -159,9 +162,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #fnames = [unicode(element) for element in fnames]
             self.currentDir =  fnames[-1].section(os.sep,0,-2)
             newbook = audiobook([chapter(element) for element in fnames])
-            self.model.addAudiobooks(newbook)
+            self.model.addAudiobooks(newbook,  current)
+            
             self.updateTree()
-
 
     @pyqtSignature("")
     def on_actionMoveDown_triggered(self):
@@ -495,7 +498,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def updateTree(self):
         
-        self.dataTreeView.expandAll()
         for i in range(6):
             self.dataTreeView.resizeColumnToContents(i)
     
