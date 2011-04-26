@@ -159,10 +159,7 @@ class audiobook:
     
     def __init__(self,  chapters,  sortBy = 'filename'):
         '''init audiobook from given chapters, sort them and calculate chapters start times'''
-#        for element in chapters:
-#            element.audiobook = self
-#        self.chapters = chapters
-        
+
         self.chapters = []
         for element in chapters:
             self.addChap(element)
@@ -559,10 +556,7 @@ class audiobookTreeModel(QAbstractItemModel):
 
     def addAudiobooks(self,  newbook,  current):
         
-        # set parent to its parent until it points to root
-        parent = current.parent()
-        while parent.isValid():
-            parent = parent.parent()
+        parent = QModelIndex()
 
         booknum = self.rowCount(parent)
         
