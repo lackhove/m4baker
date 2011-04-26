@@ -171,7 +171,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         Slot documentation goes here.
         """
-        current = self.dataTreeView.currentIndex()
 
         indexes = self.dataTreeView.selectionModel().selectedIndexes()
         #clean indexes list from double entries
@@ -182,23 +181,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         indexes = cleanIndexes
 
         self.model.move(indexes,  'down')
+
         
-        self.updateTree()
-        current = self.model.index(current.row()+1,  current.column(),  current.parent())
-        self.dataTreeView.setCurrentIndex(current)
-
-        firstIndex = self.model.index(indexes[0].row()+1,  indexes[0].column(),  indexes[0].parent())
-        lastIndex = self.model.index(indexes[-1].row()+1,  indexes[-1].column(),  indexes[-1].parent())
-        #check if the last indexes parent has changed, if true a chapter has been moved to another audiobook
-        #FIXME: this is still broken
-        if lastIndex.parent() != firstIndex.parent():
-            #in this case select the last chapter of the source audiobook
-            lastIndex = self.model.index((self.model.rowCount(firstIndex.parent())-1),  
-                                                                                firstIndex.column(),  firstIndex.parent())   
-        selection = QItemSelection(firstIndex,  lastIndex)
-        self.dataTreeView.selectionModel().select(selection,  
-                                                  QItemSelectionModel.Select | QItemSelectionModel.Rows)
-
 
     @pyqtSignature("")
     def on_actionRemove_triggered(self):
@@ -283,8 +267,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         Slot documentation goes here.
         """
-        current = self.dataTreeView.currentIndex()
-
+        
         indexes = self.dataTreeView.selectionModel().selectedIndexes()
         #clean indexes list from double entries
         cleanIndexes = []
@@ -294,22 +277,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         indexes = cleanIndexes
 
         self.model.move(indexes,  'up')
-        
-        self.updateTree()
-        current = self.model.index(current.row()-1,  current.column(),  current.parent())
-        self.dataTreeView.setCurrentIndex(current)
 
-        firstIndex = self.model.index(indexes[0].row()-1,  indexes[0].column(),  indexes[0].parent())
-        lastIndex = self.model.index(indexes[-1].row()-1,  indexes[-1].column(),  indexes[-1].parent())
-        #check if the first indexes parent has changed, if true a chapter has been moved to another audiobook
-        if firstIndex.parent() != indexes[0].parent():
-            #in this case select the first chapter of the source audiobook
-            firstIndex = self.model.index(0,  indexes[0].column(),  indexes[-1].parent())            
-        selection = QItemSelection(firstIndex,  lastIndex)
-        self.dataTreeView.selectionModel().select(selection,  
-                                                  QItemSelectionModel.Select | QItemSelectionModel.Rows)
         
-
 
     def populateChapterProperties(self):
         

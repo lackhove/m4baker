@@ -650,16 +650,24 @@ class audiobookTreeModel(QAbstractItemModel):
                 sortedChapnums[booknum] = [chapnum,  ]
             else:
                 sortedChapnums[booknum].append(chapnum)
-        
+
         if direction == 'up':
             #move chapters up
             for booknum in sortedChapnums.iterkeys():
                 if 0 in sortedChapnums[booknum]:
                     # the first chapter will be moved up
+                    oldParent = indexes[0].parent()
+                    newParent = self.index(booknum -1,  0, oldParent.parent())
+                    self.beginMoveRows(oldParent,  indexes[0].row(),  indexes[0].row(),  
+                                       newParent,   self.rowCount(newParent))
+                    self.emit(SIGNAL('expand(QModelIndex)'), newParent )
+                                       
                     tempchap = self.audiobookList[booknum].chapters.pop(0)
                     self.audiobookList[booknum -1].addChap(tempchap)
-                    self.emit(SIGNAL('expand(QModelIndex)'), self.index(booknum -1,  0, indexes[0].parent().parent()) )
                 else:
+                    self.beginMoveRows(indexes[0].parent(),  indexes[0].row(),  indexes[-1].row(), 
+                                        indexes[0].parent(),  indexes[0].row()-1)
+                    
                     for chapnum in sortedChapnums[booknum]:
                         self.audiobookList[booknum].chapters[chapnum - 1: chapnum - 1] = \
                                     [self.audiobookList[booknum].chapters.pop(chapnum), ]
@@ -670,17 +678,25 @@ class audiobookTreeModel(QAbstractItemModel):
                 lastchap = (len(self.audiobookList[booknum].chapters)-1)
                 if lastchap in sortedChapnums[booknum]:
                     # the last chapter will be moved down
+                    oldParent = indexes[-1].parent()
+                    newParent = self.index(booknum +1,  0, oldParent.parent())
+                    self.beginMoveRows(oldParent,  indexes[-1].row(),  indexes[-1].row(),  
+                                       newParent,   0)
+                    self.emit(SIGNAL('expand(QModelIndex)'), newParent)
+                    
                     tempchap = self.audiobookList[booknum].chapters.pop(lastchap)
                     self.audiobookList[booknum +1].addChap(tempchap,  0)
-                    self.emit(SIGNAL('expand(QModelIndex)'), self.index(booknum +1,  0, indexes[0].parent().parent()) )
                 else:
+                    self.beginMoveRows(indexes[0].parent(),  indexes[0].row(),  indexes[-1].row(), 
+                                        indexes[0].parent(),  indexes[-1].row() +2)
+                                        
                     #the list has to be reversed because it changes everytime pop is used
                     sortedChapnums[booknum].reverse()
                     for chapnum in sortedChapnums[booknum]:
                         self.audiobookList[booknum].chapters[chapnum + 1: chapnum + 1] = \
                                     [self.audiobookList[booknum].chapters.pop(chapnum), ]
         
-        self.emit(SIGNAL('layoutChanged()'))
+        self.endMoveRows()
     
     
     def sort(self, parent,  sortBy = 'filename'):
