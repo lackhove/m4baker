@@ -48,6 +48,7 @@ def findSupportedInputFiles():
     
 supportedInputFiles = findSupportedInputFiles()
 
+
 def verboseOutput(standardOutput, errorOutput,  name):
     if not VERBOSE:
         return
@@ -84,8 +85,11 @@ class chapter:
         soxiProc = QProcess()
         soxiProc.start('soxi',  [self.filename,])
         if soxiProc.waitForFinished():
-            self.__soxioutput = QString(soxiProc.readAllStandardOutput())
+            # some weird encoding magic to deal with special characters
+            soxioutput = str(soxiProc.readAllStandardOutput()).decode('utf-8')
+            self.__soxioutput = soxioutput
             soxiProc.deleteLater()
+
         
         #calculate duration in seconds
         regexp = QRegExp(r'''(\d\d):(\d\d):(\d\d.\d\d)''')
