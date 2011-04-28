@@ -155,8 +155,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         formats = ["*%s" % format for format in supportedInputFiles]
         
-        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to create audiobook from", self.currentDir, 'audio files',
-                                              'audio files (%s)' % " ".join(formats))
+        fnames = QFileDialog.getOpenFileNames(
+                                              self,
+                                               "Choose audio files to create audiobook from",
+                                               self.currentDir,
+                                               'audio files (%s)' % " ".join(formats))
               
         if fnames:
             #fnames = [unicode(element) for element in fnames]
@@ -209,8 +212,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         formats = ["*%s" % format for format in supportedInputFiles]
-        fnames = QFileDialog.getOpenFileNames(self, "Choose audio files to append to audiobook", self.currentDir,  
-                'audio files',  'audio files (%s)' % " ".join(formats))
+        fnames = QFileDialog.getOpenFileNames(
+                                              self,
+                                              "Choose audio files to append to audiobook",
+                                              self.currentDir,
+                                              'audio files (%s)' % " ".join(formats))
         
         
         if fnames:
@@ -390,8 +396,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         
         formats = ["*%s" % format for format in supportedInputFiles]
-        fname = QFileDialog.getOpenFileName(self, "Choose audio files to append to audiobook", self.currentDir, 
-                                            '',  'audio files (%s)' % " ".join(formats))
+        fname = QFileDialog.getOpenFileName(
+                                            self,
+                                            "change chapter source file",
+                                            self.currentDir,
+                                            'audio files (%s)' % " ".join(formats))
                 
         
         if  not fname.isEmpty():
@@ -407,8 +416,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         current = self.dataTreeView.currentIndex()
         
-        fname = QFileDialog.getSaveFileName(self, 'choose audiobook output file', self.currentDir, 
-                                             self.outfileEdit.text(), "Audiobook files (*.m4b)")
+        fname = QFileDialog.getSaveFileName(
+                                            self,
+                                            'choose audiobook output file',
+                                            self.currentDir,
+                                            "Audiobook files (*.m4b)")
         if not fname.isEmpty():
             self.currentDir =  fname.section(os.sep,0,-2)
             if not fname.endsWith('.m4b'):
@@ -454,8 +466,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         current = self.dataTreeView.currentIndex()
         
-        fname = QFileDialog.getOpenFileName(self, "Choose a cover file",  "cover.png", self.currentDir, 
-                "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)" )
+        fname = QFileDialog.getOpenFileName(
+                                            self,
+                                            "Choose a cover file",
+                                            "cover.png",
+                                            self.currentDir,
+                                            "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)" )
         
     
         if  not fname.isEmpty():
