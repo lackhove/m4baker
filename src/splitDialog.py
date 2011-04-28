@@ -38,7 +38,7 @@ class splitDialog(QDialog, Ui_splitDialog):
         self.setupUi(self)
         self.splitTimeEdit.setTime(minSplitDuration)
         self.splitTimeEdit.setMinimumTime(minSplitDuration)
-        
+
     def getMaxSplitDuration(self):
         maxSplitDuration = (self.splitTimeEdit.time().hour()*60 + self.splitTimeEdit.time().minute())*60+ self.splitTimeEdit.time().second()
         return maxSplitDuration

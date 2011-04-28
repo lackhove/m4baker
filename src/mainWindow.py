@@ -32,20 +32,20 @@ from aboutDialog import aboutDialog
 TITLE, CHAPTER, TRACK, DURATION, STARTTIME, FILENAME,  ENDTIME = range(7)
 
 def makeClickable(widget):
-    
+
     class clickFilter(QObject):
-    
+
         clicked = pyqtSignal()
-            
+
         def eventFilter(self, obj, event):
-            
+
             if obj == widget:
                 if event.type() == QEvent.MouseButtonRelease:
                     self.clicked.emit()
                     return True
-                    
+
             return False
-  
+
     filter = clickFilter(widget)
     widget.installEventFilter(filter)
     return filter.clicked
@@ -58,19 +58,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         """
         Constructor
-        """      
+        """
         class delkeyFilter(QObject):
             delkeyPressed = pyqtSignal()
-            
+
             def eventFilter(self,  obj,  event):
                 if event.type() == QEvent.KeyPress:
                     if event.key() == Qt.Key_Delete:
                         self.delkeyPressed.emit()
                         return True
                 return False
-                
+
         class returnkeyFilter(QObject):
-            
+
             def eventFilter(self,  obj,  event):
                 if event.type() == QEvent.KeyPress:
                     if event.key() == Qt.Key_Return:
@@ -78,24 +78,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         current = obj.indexBelow(current)
                         obj.setCurrentIndex(current)
                 return False
-                        
-        
+
+
         self.audiobookList = audiobookContainer()
-        
+
         self.currentDir = os.getcwd()
-        
+
         QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
         self.stackedWidget.setCurrentWidget(self.infoPage)
         makeClickable(self.coverLabel).connect(self.on_coverLabel_clicked)
-        
+
         self.model = audiobookTreeModel()
         self.dataTreeView.setModel(self.model)
-        
+
         self.progessDelegate = progressBarDelegate()
         self.dataTreeView.setItemDelegateForColumn(1,  self.progessDelegate)
-        
+
         self.connect(self.dataTreeView.selectionModel(),
                      SIGNAL('currentChanged(QModelIndex, QModelIndex)'),
                             self.on_dataTreeView_currentItemChanged)
@@ -103,18 +103,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connect(self.model,  SIGNAL('expand(QModelIndex)'),  self.dataTreeView.expand)
         #trying the new style of connecting signals
         self.model.processingDone.connect(self.on_processingDone)
-        
+
         self.delfilter = delkeyFilter()
         self.dataTreeView.installEventFilter(self.delfilter)
-        self.connect(self.delfilter, SIGNAL('delkeyPressed()'), 
+        self.connect(self.delfilter, SIGNAL('delkeyPressed()'),
                                     self.on_actionRemove_triggered)
-                                    
+
         self.returnFilter = returnkeyFilter()
         self.dataTreeView.installEventFilter(self.returnFilter)
-        
+
         #allow only numbers in yearEdit
         self.yearEdit.setValidator(QRegExpValidator(QRegExp(r'\d*'), self))
-        
+
         #set icons
         self.actionMoveDown.setIcon(QIcon.fromTheme('go-down'))
         self.actionMoveUp_2.setIcon(QIcon.fromTheme('go-up'))
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionProcess.setIcon(QIcon.fromTheme('system-run'))
         self.chapterFileButton.setIcon(QIcon.fromTheme('document-open'))
         self.outfileButton.setIcon(QIcon.fromTheme('document-open'))
-        
+
         self.updateTree()
 
 
@@ -152,21 +152,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         current = self.dataTreeView.currentIndex()
-        
+
         formats = ["*%s" % format for format in supportedInputFiles]
-        
+
         fnames = QFileDialog.getOpenFileNames(
                                               self,
                                                "Choose audio files to create audiobook from",
                                                self.currentDir,
                                                'audio files (%s)' % " ".join(formats))
-              
+
         if fnames:
             #fnames = [unicode(element) for element in fnames]
             self.currentDir =  fnames[-1].section(os.sep,0,-2)
             newbook = audiobook([chapter(element) for element in fnames])
             self.model.addAudiobooks(newbook,  current)
-            
+
             self.updateTree()
 
     @pyqtSignature("")
@@ -185,7 +185,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model.move(indexes,  'down')
 
-        
+
 
     @pyqtSignature("")
     def on_actionRemove_triggered(self):
@@ -193,7 +193,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         current = self.dataTreeView.currentIndex()
-        
+
         indexes = self.dataTreeView.selectionModel().selectedIndexes()
         #clean indexes list from double entries
         cleanIndexes = []
@@ -201,11 +201,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if index.column() == 0:
                 cleanIndexes.append(index)
         indexes = cleanIndexes
-        
+
         self.model.remove(indexes)
         self.updateTree()
-    
-    
+
+
     @pyqtSignature("")
     def on_actionAddChapter_triggered(self):
         """
@@ -217,8 +217,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                               "Choose audio files to append to audiobook",
                                               self.currentDir,
                                               'audio files (%s)' % " ".join(formats))
-        
-        
+
+
         if fnames:
             self.currentDir =  fnames[-1].section(os.sep,0,-2)
             #fnames = [unicode(element) for element in fnames]
@@ -226,9 +226,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             current = self.dataTreeView.currentIndex()
             self.model.addChapters(chaplist,  current)
             self.updateTree()
-            #TODO: maybe it is smarter to add the chapter after current item?        
+            #TODO: maybe it is smarter to add the chapter after current item?
 
-    
+
     @pyqtSignature("")
     def on_actionSortByFilename_triggered(self):
         """
@@ -237,8 +237,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         self.model.sort(current,  'filename')
         self.updateTree()
-    
-    
+
+
     @pyqtSignature("")
     def on_actionSortByTracknumber_triggered(self):
         """
@@ -248,16 +248,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.model.sort(current,  'trackNumber')
         self.updateTree()
 
-    
+
     @pyqtSignature("")
     def on_actionProcess_triggered(self):
         """
         Slot documentation goes here.
         """
-        uiElements = (self.actionAddChapter,  self.actionMoveDown,  
+        uiElements = (self.actionAddChapter,  self.actionMoveDown,
                       self.actionMoveUp_2,  self.actionProcess, self.actionRemove,  self.actionSortByFilename,
                       self.actionSortByTracknumber,  self.actionSplit,  self.actionAddAudiobook)
-        
+
         for element in uiElements:
             element.setEnabled(False)
         #switch to about docker to prevent data from being changed
@@ -273,7 +273,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         Slot documentation goes here.
         """
-        
+
         indexes = self.dataTreeView.selectionModel().selectedIndexes()
         #clean indexes list from double entries
         cleanIndexes = []
@@ -284,14 +284,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model.move(indexes,  'up')
 
-        
+
 
     def populateChapterProperties(self):
-        
+
         #current must be a chapter, otherwise this method wont be called
         current = self.dataTreeView.currentIndex()
-        
-        title = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()), 
+
+        title = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                          Qt.DisplayRole).toString()
         startTime = self.model.data(self.model.index(current.row(),  STARTTIME,  current.parent()),
                                                                                                   Qt.DisplayRole).toString()
@@ -299,40 +299,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                                                                 Qt.DisplayRole).toString()
         filename = self.model.data(self.model.index(current.row(),  FILENAME,  current.parent()),
                                                                                                 Qt.DisplayRole).toString()
-        endTime= self.model.data(self.model.index(current.row(),  TITLE,  current.parent()), 
+        endTime= self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                           Qt.UserRole)['endTime']
         endTime = u'%.2d:%.2d:%#06.3f' % secConverter(endTime)
-        
+
         self.chapterTitleEdit.setText(title)
-        self.startTimeEdit.setText(startTime)    
+        self.startTimeEdit.setText(startTime)
         self.durationEdit.setText(duration)
         self.chapterFileEdit.setText(filename)
         self.endTimeEdit.setText(endTime)
-    
-    
+
+
     def populateAudiobookProperties(self):
-        
+
         current = self.dataTreeView.currentIndex()
-        
-        title = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),  
+
+        title = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                         Qt.UserRole)['title']
-        booknum = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),  
+        booknum = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                           Qt.UserRole)['booknum']
-        author = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),  
+        author = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                          Qt.UserRole)['author']
-        encodeString = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()), 
+        encodeString = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                                 Qt.UserRole)['encodeString']
         outfileName = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                                Qt.UserRole)['outfileName']
         year = self.model.data(self.model.index(current.row(),  TITLE,  current.parent()),
                                                                                          Qt.UserRole)['year']
-   
+
         self.authorEdit.setText(author)
         self.titleEdit.setText(title)
         self.yearEdit.setText(year)
         self.faacEdit.setText(encodeString)
         self.outfileEdit.setText(outfileName)
-        
+
         pixmap = self.model.data(self.model.index(current.row(),  0,  current.parent()),  Qt.UserRole).get('cover')
         if pixmap:
             pixmap = self.model.data(self.model.index(current.row(),  0,  current.parent()),  Qt.UserRole)['cover']
@@ -342,17 +342,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.coverLabel.setText('(click to change)')
 
-    
+
     @pyqtSignature("QModelIndex*, QModelIndex*")
     def on_dataTreeView_currentItemChanged(self, current, previous):
         """
         Slot documentation goes here.
-        """ 
-        uiElements = (self.actionAddChapter,  self.actionMoveDown,  
+        """
+        uiElements = (self.actionAddChapter,  self.actionMoveDown,
                       self.actionMoveUp_2,  self.actionProcess, self.actionRemove,  self.actionSortByFilename,
                       self.actionSortByTracknumber,  self.actionSplit)
-        
-        
+
+
         if not current.isValid():
             #current is rootItem
             for element in uiElements:
@@ -361,7 +361,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             for element in uiElements:
                 element.setEnabled(True)
-        
+
         if not current.parent().isValid():
             #current is audiobook
             self.stackedWidget.setCurrentWidget(self.audiobookPropertiesPage)
@@ -387,35 +387,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     #current is the last chapter of the last book
                     self.actionMoveDown.setEnabled(False)
 
-    
+
     @pyqtSignature("")
     def on_chapterFileButton_clicked(self):
         """
         Slot documentation goes here.
         """
         current = self.dataTreeView.currentIndex()
-        
+
         formats = ["*%s" % format for format in supportedInputFiles]
         fname = QFileDialog.getOpenFileName(
                                             self,
                                             "change chapter source file",
                                             self.currentDir,
                                             'audio files (%s)' % " ".join(formats))
-                
-        
+
+
         if  not fname.isEmpty():
             self.currentDir =  fname.section(os.sep,0,-2)
             self.model.setData(self.model.index(current.row(), FILENAME,  current.parent()), QVariant(fname))
             self.populateChapterProperties()
 
-    
+
     @pyqtSignature("")
     def on_outfileButton_clicked(self):
         """
         Slot documentation goes here.
         """
         current = self.dataTreeView.currentIndex()
-        
+
         fname = QFileDialog.getSaveFileName(
                                             self,
                                             'choose audiobook output file',
@@ -434,22 +434,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dialog = aboutDialog()
         if dialog.exec_():
             pass
-    
-    
+
+
     @pyqtSignature("")
     def on_actionSplit_triggered(self):
         """
         Slot documentation goes here.
         """
         current = self.dataTreeView.currentIndex()
-        
+
         if not current.parent().isValid():
             #audiobook
             pass
         else:
             #chapter
             current = current.parent()
-        
+
         minSplitDuration = self.model.data(current,  Qt.UserRole)['minSplitDuration']
         hours,  minutes,  seconds = secConverter(minSplitDuration)
         minSplitDuration = QTime(hours,  minutes,  seconds+1)
@@ -459,37 +459,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             maxSplitDuration = dialog.getMaxSplitDuration()
             self.model.split(current,  maxSplitDuration)
             self.updateTree()
-    
-    
+
+
     @pyqtSignature("")
     def on_coverLabel_clicked(self):
-        
+
         current = self.dataTreeView.currentIndex()
-        
+
         fname = QFileDialog.getOpenFileName(
                                             self,
                                             "Choose a cover file",
                                             "cover.png",
                                             self.currentDir,
                                             "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)" )
-        
-    
+
+
         if  not fname.isEmpty():
             self.currentDir =  fname.section(os.sep,0,-2)
-            self.model.setData(self.model.index(current.row(),  0,  current.parent()), 
+            self.model.setData(self.model.index(current.row(),  0,  current.parent()),
                                                                                     {'cover':QPixmap(fname)},  Qt.UserRole)
             self.populateAudiobookProperties()
-    
-    
+
+
     def updateTree(self):
-        
+
         for i in range(6):
             self.dataTreeView.resizeColumnToContents(i)
-    
+
 
     def dataChanged(self,  topLeft,  bottomRight):
         current = self.dataTreeView.currentIndex()
-        
+
         if not current.parent().isValid():
             #audiobook
             self.populateAudiobookProperties()
@@ -503,8 +503,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionAddAudiobook.setEnabled(True)
         self.dataTreeView.setEnabled(True)
         self.dataTreeView.reset()
-    
-    
+
+
     @pyqtSignature("")
     def on_chapterTitleEdit_editingFinished(self):
         """
@@ -513,7 +513,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         text = self.chapterTitleEdit.text()
         self.model.setData(self.model.index(current.row(),  TITLE,  current.parent()), QVariant(text))
-    
+
     @pyqtSignature("")
     def on_faacEdit_editingFinished(self):
         """
@@ -523,7 +523,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         value = {'encodeString':QVariant(text)}
         self.model.setData(self.model.index(current.row(),  0,  QModelIndex()), value,  Qt.UserRole)
-    
+
     @pyqtSignature("")
     def on_titleEdit_editingFinished(self):
         """
@@ -532,7 +532,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = self.titleEdit.text()
         current = self.dataTreeView.currentIndex()
         self.model.setData(self.model.index(current.row(),  TITLE,  QModelIndex()), QVariant(text))
-    
+
     @pyqtSignature("")
     def on_yearEdit_editingFinished(self):
         """
@@ -541,7 +541,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         text = self.titleEdit.text()
         current = self.dataTreeView.currentIndex()
         self.model.setData(self.model.index(current.row(),  TITLE,  QModelIndex()), QVariant(text))
-    
+
     @pyqtSignature("")
     def on_authorEdit_editingFinished(self):
         """
@@ -551,7 +551,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         current = self.dataTreeView.currentIndex()
         value = {'author':QVariant(text)}
         self.model.setData(self.model.index(current.row(),  0,  QModelIndex()), value,  Qt.UserRole)
-    
+
     @pyqtSignature("")
     def on_action_help_triggered(self):
         """

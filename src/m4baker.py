@@ -45,16 +45,16 @@ def which(program):
             if is_exe(exe_file):
                 return exe_file
     return None
-    
-    
+
+
 def main():
     parser = OptionParser()
-    parser = OptionParser(usage= 'usage: %prog [options]', 
-                    version = baseclasses.version)    
-    parser.add_option('--verbose',  action='store_true',  dest='VERBOSE',  default=False, 
+    parser = OptionParser(usage= 'usage: %prog [options]',
+                    version = baseclasses.version)
+    parser.add_option('--verbose',  action='store_true',  dest='VERBOSE',  default=False,
                       help= 'Be more verbose')
-    (options, args) = parser.parse_args(sys.argv) 
-    
+    (options, args) = parser.parse_args(sys.argv)
+
     app = QtGui.QApplication(sys.argv)
     ui = MainWindow()
     #check for dependencies
@@ -69,6 +69,6 @@ def main():
     ui.show()
     baseclasses.VERBOSE = options.VERBOSE
     sys.exit(app.exec_())
-    
+
 if __name__ == "__main__":
     main()
