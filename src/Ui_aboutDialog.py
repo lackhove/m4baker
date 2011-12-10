@@ -64,7 +64,7 @@ class Ui_aboutDialog(object):
         self.label_3.setText(QtGui.QApplication.translate("aboutDialog", "\n"
 "m4baker is a sox/faac/mp4v2 frontend to bake full featured m4b audiobooks.\n"
 "\n"
-"© 2010, Kilian Lackhove (0crabman@googlemail.com)", None, QtGui.QApplication.UnicodeUTF8))
+"© 2010, Kilian Lackhove (kilian.lackhove@gmail.com)", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc
 import resources_rc

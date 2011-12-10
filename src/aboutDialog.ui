@@ -79,7 +79,7 @@ p, li { white-space: pre-wrap; }
         <string>
 m4baker is a sox/faac/mp4v2 frontend to bake full featured m4b audiobooks.
 
-© 2010, Kilian Lackhove (0crabman@googlemail.com)</string>
+© 2010, Kilian Lackhove (kilian.lackhove@gmail.com)</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

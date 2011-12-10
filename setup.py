@@ -10,7 +10,7 @@ if version < '2.2.3':
 setup(name = 'm4baker',
         description = 'Bake full-featured m4b-audiobooks',
         author = 'Kilian Lackhove',
-        author_email = '0crabman@gmail.com',
+        author_email = 'kilian.lackhove@gmail.com',
         url='http://code.google.com/p/m4baker/',
         classifiers = [
               'Programming Language :: Python :: 2',

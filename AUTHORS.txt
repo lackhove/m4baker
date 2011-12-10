@@ -1,4 +1,4 @@
-Kilian Lackhove 0crabman@googlemail.com
+Kilian Lackhove kilian.lackhove@gmail.com
 http://code.google.com/p/m4baker/
 
 The "which()" function in m4baker.py was taken from Stack Overflow
