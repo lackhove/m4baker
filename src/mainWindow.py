@@ -469,9 +469,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fname = QFileDialog.getOpenFileName(
                                             self,
                                             "Choose a cover file",
-                                            "cover.png",
                                             self.currentDir,
-                                            "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)" )
+                                            "image files (*.png *.jpg *.jpeg *.bmp *.gif *.pbm *.pgm *ppm *xpm *xpm)",
+                                            "cover.png"
+					    )
 
 
         if  not fname.isEmpty():
