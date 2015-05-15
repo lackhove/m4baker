@@ -222,7 +222,7 @@ class audiobook:
         soxcommand = [u'sox',  ]
         for i in range(0, len(self.chapters)):
             soxcommand.append(self.chapters[i].filename)
-        soxcommand += [u'-t',  u'.wav',  u'-o',  u'-']
+        soxcommand += [u'-t',  u'.wav',  u'-']
 
         faaccommand = QString(self.encodeString)
         faaccommand = faaccommand.trimmed()
